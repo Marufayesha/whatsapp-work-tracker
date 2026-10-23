@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsApp Work Tracker — Live Demo</title>
+<meta name="description" content="Chrome extension that turns work messages on WhatsApp Web into tasks, follow-ups, payments and reminders. 100% offline. Interactive demo with sample data.">
+<link rel="icon" href="assets/icon128.png">
+<style>
+:root {
+  --bg: #f4f6f8; --card: #fff; --border: #e3e7ec; --border-strong: #cfd6de;
+  --text: #111827; --muted: #64748b; --faint: #94a3b8;
+  --brand: #16a34a; --brand-dark: #15803d; --primary: #2563eb; --danger: #dc2626;
+  --danger-bg: #fef2f2; --danger-border: #fca5a5; --warn-bg: #fff7e6; --warn-border: #f5c26b;
+  --wa-bg: #efeae2; --wa-head: #f0f2f5; --wa-in: #fff; --wa-out: #d9fdd3;
+  --page: #0b1220; --page-text: #e5e7eb;
+  --radius: 10px; --shadow: 0 1px 2px rgba(15,23,42,.06);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--page); color: var(--page-text);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Devanagari", sans-serif;
+}
+button, input { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+
+/* ---------- hero ---------- */
+.hero { max-width: 1180px; margin: 0 auto; padding: 36px 16px 20px; text-align: center; }
+.hero img { width: 64px; height: 64px; }
+.hero h1 { margin: 10px 0 6px; font-size: clamp(26px, 5vw, 40px); letter-spacing: -.02em; color: #fff; }
+.hero p.tag { margin: 0 auto; max-width: 680px; font-size: clamp(15px, 2.4vw, 18px); color: #cbd5e1; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0 4px; }
+.badges span { font-size: 12.5px; padding: 4px 10px; border-radius: 999px; background: #111c33; border: 1px solid #22304d; color: #cbd5e1; }
+.demo-note { margin: 14px auto 0; max-width: 680px; font-size: 13px; color: #94a3b8; }
+.demo-note b { color: #fbbf24; }
+
+/* ---------- stage ---------- */
+.stage {
+  max-width: 1180px; margin: 0 auto; padding: 0 16px 24px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 16px; align-items: start;
+}
+@media (max-width: 860px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+.frame { border-radius: 14px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,.45); border: 1px solid #1f2a44; }
+.frame-label { font-size: 12px; color: #94a3b8; margin: 0 0 6px 4px; }
+
+/* ---------- fake WhatsApp ---------- */
+.wa { background: var(--wa-bg); color: #111b21; display: flex; flex-direction: column; height: 640px; }
+@media (max-width: 860px) { .wa { height: 460px; } }
+.wa-head { background: var(--wa-head); padding: 10px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #d1d7db; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: #25d366; color: #fff; display: grid; place-items: center; font-weight: 700; flex: none; }
+.wa-head .t { font-weight: 600; }
+.wa-head .s { font-size: 12px; color: #667781; }
+.wa-body { flex: 1; overflow-y: auto; padding: 14px 6%; display: flex; flex-direction: column; gap: 6px; }
+.bubble { max-width: 78%; padding: 6px 9px 4px; border-radius: 8px; box-shadow: 0 1px .5px rgba(11,20,26,.13); font-size: 14px; animation: pop .25s ease-out; }
+.bubble.in { align-self: flex-start; background: var(--wa-in); border-top-left-radius: 0; }
+.bubble.out { align-self: flex-end; background: var(--wa-out); border-top-right-radius: 0; }
+.bubble .who { font-size: 12.5px; font-weight: 600; color: #1f7aec; margin-bottom: 1px; }
+.bubble .tm { font-size: 11px; color: #667781; text-align: right; margin-top: 1px; }
+.bubble.hit { outline: 2px solid #16a34a; outline-offset: 2px; }
+.bubble.skip { opacity: .75; }
+.day { align-self: center; font-size: 12px; background: #fff; color: #54656f; padding: 3px 10px; border-radius: 7px; box-shadow: 0 1px .5px rgba(11,20,26,.13); }
+.wa-foot { background: var(--wa-head); padding: 8px 10px; display: flex; gap: 8px; border-top: 1px solid #d1d7db; }
+.wa-foot input { flex: 1; min-width: 0; border: 0; border-radius: 8px; padding: 9px 12px; background: #fff; }
+.wa-foot button { border: 0; background: #00a884; color: #fff; border-radius: 8px; padding: 0 14px; cursor: pointer; font-weight: 600; }
+.try-hint { font-size: 12px; color: #54656f; padding: 0 12px 8px; background: var(--wa-head); }
+.try-hint code { background: #fff; border-radius: 4px; padding: 0 4px; cursor: pointer; }
+
+/* ---------- side panel replica ---------- */
+.panel { background: var(--bg); color: var(--text); height: 640px; display: flex; flex-direction: column; font-size: 13px; line-height: 1.45; }
+@media (max-width: 860px) { .panel { height: 600px; } }
+.top { background: var(--card); border-bottom: 1px solid var(--border); padding: 10px 12px 0; flex: none; }
+.brand-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.brand { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 15px; }
+.search { margin: 8px 0; }
+.search input { width: 100%; padding: 7px 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: #fbfcfd; }
+.tabs { display: flex; margin: 0 -12px; padding: 0 4px; }
+.tab { flex: 1 1 0; min-width: 0; border: 0; background: none; padding: 6px 1px 7px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; }
+.tab .ico { font-size: 16px; line-height: 1; position: relative; }
+.tab .cnt { position: absolute; top: -5px; left: calc(100% - 3px); min-width: 15px; padding: 0 4px; border-radius: 8px; background: #e2e8f0; color: #334155; font-size: 9.5px; font-weight: 700; line-height: 14px; text-align: center; }
+.tab .cnt.red { background: var(--danger); color: #fff; }
+.tab.active { color: var(--brand-dark); border-bottom-color: var(--brand); font-weight: 600; }
+.view { flex: 1; overflow-y: auto; padding: 10px 12px 30px; }
+.view-head { display: flex; align-items: center; justify-content: space-between; margin: 2px 0 10px; }
+.view-title { font-weight: 700; font-size: 14px; }
+.section-title { margin: 14px 0 7px; font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: #334155; }
+.section-title:first-child { margin-top: 2px; }
+.empty { text-align: center; color: var(--muted); padding: 24px 12px; border: 1px dashed var(--border-strong); border-radius: var(--radius); background: #fafbfc; }
+.empty .big { font-size: 22px; }
+.empty b { color: var(--text); display: block; }
+.btn { border: 1px solid var(--border-strong); background: var(--card); border-radius: 7px; padding: 3px 7px; cursor: pointer; font-size: 11.5px; white-space: nowrap; }
+.btn:hover { background: #f1f5f9; }
+.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 600; padding: 4px 8px; font-size: 12px; }
+.btn.good { color: #166534; border-color: #bbe5c8; background: #f0fdf4; }
+.btn.danger { color: var(--danger); }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 10px 8px; margin-bottom: 8px; box-shadow: var(--shadow); animation: slide .3s ease-out; }
+.card.high { border-left: 3px solid var(--danger); padding-left: 8px; }
+.card.done .title { color: var(--muted); text-decoration: line-through; }
+.card-top { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 4px; }
+.spacer { flex: 1; }
+.title { font-weight: 600; font-size: 13.5px; word-break: break-word; }
+.meta { color: var(--muted); font-size: 11.5px; margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.why-link { font-size: 11px; color: var(--primary); background: none; border: 0; padding: 0; cursor: pointer; margin-left: auto; }
+.why { margin-top: 6px; font-size: 11.5px; color: #334155; background: #f8fafc; border-radius: 7px; padding: 6px 8px; border: 1px dashed var(--border-strong); }
+.why code { background: #eef2f7; border-radius: 4px; padding: 0 4px; }
+.actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; border: 1px solid transparent; line-height: 17px; white-space: nowrap; }
+.chip.type { background: #f1f5f9; color: #334155; border-color: var(--border); }
+.chip.company { color: #fff; }
+.chip.high { background: var(--danger); color: #fff; }
+.chip.amount { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+.due { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; border: 1px solid; white-space: nowrap; }
+.due.overdue { background: var(--danger-bg); color: #b91c1c; border-color: var(--danger-border); }
+.due.today { background: #fff7ed; color: #c2410c; border-color: #fdba74; }
+.due.later { background: #f8fafc; color: #475569; border-color: var(--border-strong); }
+.mini { display: flex; align-items: center; gap: 7px; padding: 6px 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 5px; }
+.mini .txt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mini.comp { background: #f8fafc; border-style: dashed; color: #475569; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none; }
+.group { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+.group > div.gh { padding: 8px 10px; font-weight: 700; }
+.drow { padding: 7px 10px; border-top: 1px solid #eef1f4; }
+.drow .kind { font-size: 10.5px; font-weight: 700; color: var(--muted); margin-right: 4px; }
+.drow .val { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; cursor: pointer; }
+.drow .src { font-size: 11px; color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 7px; text-align: center; }
+.stat b { display: block; font-size: 18px; }
+.stat span { font-size: 11px; color: var(--muted); }
+.banner-ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; border-radius: 8px; padding: 7px 10px; font-size: 12px; margin-bottom: 8px; }
+.toast { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); background: #0f172a; color: #fff; padding: 7px 14px; border-radius: 999px; font-size: 12.5px; z-index: 5; white-space: nowrap; }
+.panel-wrap { position: relative; }
+
+/* ---------- controls + features ---------- */
+.controls { max-width: 1180px; margin: 0 auto; padding: 0 16px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.controls button { border: 1px solid #2b3a5c; background: #111c33; color: #e5e7eb; border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+.controls button:hover { background: #18264a; }
+.features { max-width: 1180px; margin: 0 auto; padding: 28px 16px 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.feat { background: #0f1930; border: 1px solid #1f2a44; border-radius: 12px; padding: 14px; }
+.feat h3 { margin: 0 0 4px; font-size: 15px; color: #fff; }
+.feat p { margin: 0; color: #a5b4cb; font-size: 13.5px; }
+.cta { text-align: center; padding: 26px 16px 50px; color: #cbd5e1; }
+.cta a { display: inline-block; margin-top: 10px; background: #16a34a; color: #fff; text-decoration: none; font-weight: 700; padding: 10px 20px; border-radius: 999px; }
+
+@keyframes pop { from { transform: scale(.96); opacity: 0; } }
+@keyframes slide { from { transform: translateY(-6px); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <img src="assets/icon128.png" alt="">
+  <h1>WhatsApp Work Tracker</h1>
+  <p class="tag">Your WhatsApp is full of work — invoices, payments, “kal tak bhej dena”. This Chrome extension quietly turns those messages into <b>tasks, follow-ups, payments and reminders</b>. No server, no AI bills, 100% offline.</p>
+  <div class="badges">
+    <span>🧩 Chrome Extension (MV3)</span><span>🔒 Data stays in your browser</span><span>🇮🇳 Hinglish + English + Hindi</span><span>✅ 160+ automated tests</span>
+  </div>
+  <p class="demo-note"><b>Live demo:</b> watch messages arrive on the left and get sorted on the right. Then type your own message to try it. All chats, names and numbers are made-up sample data.</p>
+</header>
+
+<div class="controls">
+  <button id="replay">▶ Replay demo</button>
+  <button id="fast">⏩ Show all now</button>
+</div>
+
+<section class="stage">
+  <div>
+    <div class="frame-label">WhatsApp Web (simulated)</div>
+    <div class="frame wa">
+      <div class="wa-head"><div class="avatar">AT</div><div><div class="t">Accounts Team</div><div class="s">Rahul, Priya, Vendor Desk, You</div></div></div>
+      <div class="wa-body" id="wa-body"></div>
+      <div class="try-hint">Try: <code>Sir TDS return 15 tak file karna hai</code> · <code>Payment ₹12,500 received</code> · <code>Good night</code></div>
+      <form class="wa-foot" id="wa-form"><input id="wa-input" placeholder="Type a message…" autocomplete="off"><button>Send</button></form>
+    </div>
+  </div>
+  <div>
+    <div class="frame-label">Work Tracker side panel</div>
+    <div class="frame panel-wrap">
+      <div class="panel">
+        <div class="top">
+          <div class="brand-row">
+            <div class="brand"><img src="assets/icon128.png" alt="" width="20" height="20"> Work Tracker</div>
+            <button class="btn primary" id="btn-new">+ New task</button>
+          </div>
+          <div class="search"><input id="search" type="search" placeholder="Search: task, name, GSTIN, UTR…"></div>
+          <nav class="tabs" id="tabs"></nav>
+        </div>
+        <main class="view" id="view"></main>
+      </div>
+      <div class="toast" id="toast" hidden></div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="feat"><h3>📥 Smart Inbox</h3><p>Work messages are detected automatically. Sort each one with a single tap: Task, Follow-up, Details or “Not work”.</p></div>
+  <div class="feat"><h3>📅 Understands dates</h3><p>“kal tak”, “20 tak”, “Monday ko”, “EOD” → real due dates, counted from the day the message was sent.</p></div>
+  <div class="feat"><h3>🔔 Follow-ups both ways</h3><p>Tracks what others owe you and what you owe them. Reminders, snooze, and it notices when the reply arrives.</p></div>
+  <div class="feat"><h3>🗂️ Details vault</h3><p>GSTIN, PAN, IFSC, UTR, amounts and documents are pulled out and saved in one searchable place. Click to copy.</p></div>
+  <div class="feat"><h3>🏢 Company tags</h3><p>Handles several businesses? Every task is auto-tagged to the right company.</p></div>
+  <div class="feat"><h3>📊 Daily Sweep + Report</h3><p>Checks every chat active today, read or unread, so nothing gets missed. Export to Excel/CSV.</p></div>
+  <div class="feat"><h3>🧾 Compliance calendar</h3><p>GST, TDS, ITR and ROC due dates appear on the schedule next to your own tasks.</p></div>
+  <div class="feat"><h3>🔒 Private by design</h3><p>It only reads, never sends or clicks on its own. OTPs aren't stored, passwords are redacted and Aadhaar is masked. No cloud.</p></div>
+</section>
+
+<div class="cta">
+  <div>Full source code is coming soon. Star the repo to get notified.</div>
+  <a href="https://github.com/Marufayesha/whatsapp-work-tracker">⭐ Star on GitHub</a>
+</div>
+
+<script>
+// Demo only: sample data + a tiny simplified matcher made for this page.
+// This is NOT the extension's real detection engine.
+(() => {
+  const COMPANIES = {
+    ACME: { short: 'Acme Traders', color: '#2563eb' },
+    SUN: { short: 'Sunrise Foods', color: '#9333ea' },
+    GREEN: { short: 'Greenleaf Agro', color: '#0d9488' }
+  };
+  const COMPLIANCE = [
+    { day: 7, label: 'TDS deposit (previous month)' },
+    { day: 11, label: 'GSTR-1 due' },
+    { day: 20, label: 'GSTR-3B due' }
+  ];
+  const DAY = 864e5;
+  const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
+  const today = startOfDay(Date.now());
+  const fmtTime = (ts) => new Date(ts).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  const fmtDate = (ts) => new Date(ts).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+
+  const SCRIPT = [
+    { who: 'Rahul', text: 'Good morning everyone 🌞', at: 9.1 },
+    { who: 'Rahul', text: 'Sir Acme Traders ka GST invoice kal tak bhej dijiye, urgent hai', at: 9.3 },
+    { who: 'Vendor Desk', text: 'Payment of ₹45,000 done for Sunrise Foods. UTR 402918377561', at: 10.2 },
+    { who: 'me', text: 'Priya please TDS challan share kar dijiye', at: 10.6 },
+    { who: 'Priya', text: 'Greenleaf Agro GSTIN 27ABCDE1234F1Z5, PAN ABCDE1234F', at: 11.4 },
+    { who: 'Rahul', text: 'Ok 👍', at: 11.5 },
+    { who: 'Priya', text: 'Audit report 20 tak finalize karna hai — Sunrise Foods', at: 12.2 },
+    { who: 'Vendor Desk', text: '📄 Invoice_Sept_Acme.pdf', at: 12.8 }
+  ];
+
+  const state = { tab: 'inbox', items: [], search: '', seq: 0 };
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // ---- toy matcher (demo only) ----
+  function demoAnalyze(text, sentAt, fromMe) {
+    const t = text.toLowerCase();
+    const signals = [];
+    let type = null;
+    const amountM = text.match(/(?:₹|rs\.?\s*|inr\s*)([\d,]+)/i);
+    const amount = amountM ? Number(amountM[1].replace(/,/g, '')) : null;
+    const details = [];
+    const gst = text.match(/\b\d{2}[A-Z]{5}\d{4}[A-Z]\d[Z][A-Z\d]\b/);
+    if (gst) details.push(['GSTIN', gst[0]]);
+    const pan = text.replace(gst ? gst[0] : '', '').match(/\b[A-Z]{5}\d{4}[A-Z]\b/);
+    if (pan) details.push(['PAN', pan[0]]);
+    const utr = text.match(/\butr\s*[:#]?\s*(\w{10,22})/i);
+    if (utr) details.push(['UTR', utr[1]]);
+    const doc = text.match(/[\w-]+\.(pdf|xlsx?|docx?|jpg|png)\b/i);
+    if (doc) details.push(['Document', doc[0]]);
+
+    if (/payment|paid|received|transfer|utr|neft|imps/.test(t)) { type = 'payment'; signals.push('payment word'); }
+    if (fromMe && /please|pls|plz|share kar|bhej d|send|de dijiye|kar dijiye/.test(t)) { type = type || 'followup'; signals.push('you asked someone → follow-up'); }
+    const onlyDoc = doc && text.replace(doc[0], '').replace(/[^\p{L}\p{N}]/gu, '').length < 3;
+    if (onlyDoc) { type = 'details'; signals.push('document shared'); }
+    if (/invoice|bill|\bgst\b|tds|itr|roc|return|audit|report|file karna|finalize|submit|challan|urgent|kal tak|\d{1,2}\s*tak|eod/.test(t)) {
+      type = type || 'task'; signals.push('work keyword');
+    }
+    if (!type && details.length) { type = 'details'; signals.push('details found'); }
+    if (!type && amount) { type = 'payment'; signals.push('amount'); }
+
+    let due = null;
+    const base = startOfDay(sentAt);
+    if (/\b(aaj|today|eod)\b/.test(t)) { due = base; signals.push('“aaj/today” → due today'); }
+    else if (/\b(kal|tomorrow)\b/.test(t)) { due = base + DAY; signals.push('“kal tak” → due tomorrow'); }
+    else {
+      const n = t.match(/\b(\d{1,2})\s*(tak|tk|th|ko|by)\b/);
+      if (n && +n[1] >= 1 && +n[1] <= 31) {
+        const d = new Date(base); if (+n[1] < d.getDate()) d.setMonth(d.getMonth() + 1); d.setDate(+n[1]);
+        due = startOfDay(d); signals.push(`“${n[0]}” → ${fmtDate(due)}`);
+      }
+    }
+    let company = null;
+    if (t.includes('acme')) company = 'ACME'; else if (t.includes('sunrise')) company = 'SUN'; else if (t.includes('greenleaf')) company = 'GREEN';
+    if (company) signals.push('company name → ' + COMPANIES[company].short);
+    const priority = /urgent|asap|turant|jaldi/.test(t) ? 'high' : 'normal';
+    if (priority === 'high') signals.push('“urgent” → high priority');
+    if (details.length) signals.push(details.map((d) => d[0]).join(', ') + ' extracted');
+    return type ? { type, due, company, priority, amount, details, signals } : null;
+  }
+
+  // ---- WhatsApp side ----
+  function addBubble(msg) {
+    const body = $('wa-body');
+    const b = document.createElement('div');
+    b.className = 'bubble ' + (msg.who === 'me' ? 'out' : 'in');
+    b.innerHTML = (msg.who !== 'me' ? `<div class="who">${esc(msg.who)}</div>` : '') + esc(msg.text) + `<div class="tm">${fmtTime(msg.ts)}</div>`;
+    body.append(b);
+    body.scrollTop = body.scrollHeight;
+    const r = demoAnalyze(msg.text, msg.ts, msg.who === 'me');
+    if (r) {
+      b.classList.add('hit');
+      state.items.unshift({ id: ++state.seq, text: msg.text, chat: 'Accounts Team', sender: msg.who, ts: msg.ts, status: 'inbox', ...r });
+      toast('📥 New item detected');
+    } else b.classList.add('skip');
+    render();
+  }
+
+  // ---- panel ----
+  const TABS = [
+    ['inbox', '📥', 'Inbox'], ['tasks', '✅', 'Tasks'], ['followups', '🔔', 'Follow-ups'],
+    ['schedule', '📅', 'Schedule'], ['details', '🗂️', 'Details'], ['report', '📊', 'Report']
+  ];
+  const TYPE = { task: '✅ Task', followup: '🔔 Follow-up', payment: '💰 Payment', details: '🗂️ Details' };
+  const inbox = () => state.items.filter((i) => i.status === 'inbox');
+  const tasks = () => state.items.filter((i) => i.status === 'task' || i.status === 'done');
+  const fups = () => state.items.filter((i) => i.status === 'followup');
+  const matches = (i) => !state.search || (i.text + ' ' + i.details.map((d) => d[1]).join(' ')).toLowerCase().includes(state.search);
+
+  function dueChip(i) {
+    if (!i.due || i.status === 'done') return '';
+    const diff = Math.round((i.due - today) / DAY);
+    const cls = diff < 0 ? 'overdue' : diff === 0 ? 'today' : 'later';
+    const lbl = diff < 0 ? 'Overdue' : diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : fmtDate(i.due);
+    return `<span class="due ${cls}">📅 ${lbl}</span>`;
+  }
+  function card(i, actions) {
+    const co = i.company ? `<span class="chip company" style="background:${COMPANIES[i.company].color}">${COMPANIES[i.company].short}</span>` : '';
+    return `<div class="card${i.priority === 'high' && i.status !== 'done' ? ' high' : ''}${i.status === 'done' ? ' done' : ''}">
+      <div class="card-top"><span class="chip type">${TYPE[i.type]}</span>${co}${i.priority === 'high' && i.status !== 'done' ? '<span class="chip high">High</span>' : ''}${i.amount ? `<span class="chip amount">₹${i.amount.toLocaleString('en-IN')}</span>` : ''}<span class="spacer"></span>${dueChip(i)}</div>
+      <div class="title">${esc(i.text)}</div>
+      <div class="meta">${esc(i.chat)} · ${i.sender === 'me' ? 'Me' : esc(i.sender)} · ${fmtTime(i.ts)}<button class="why-link" data-why="${i.id}">Why detected?</button></div>
+      <div class="why" id="why-${i.id}" hidden>Signals: ${i.signals.map((s) => `<code>${esc(s)}</code>`).join(' ')}</div>
+      <div class="actions">${actions}</div></div>`;
+  }
+  const empty = (big, b, s) => `<div class="empty"><div class="big">${big}</div><b>${b}</b>${s}</div>`;
+
+  const VIEWS = {
+    inbox() {
+      const list = inbox().filter(matches);
+      let html = `<div class="view-head"><div class="view-title">📥 Inbox (${list.length})</div>${list.length > 1 ? '<button class="btn good" data-act="all">✅ Accept all</button>' : ''}</div>`;
+      if (!list.length) return html + empty('🎉', 'Inbox is empty', 'Send a work message on the left, or press Replay.');
+      return html + list.map((i) => card(i,
+        `<button class="btn good" data-act="task" data-id="${i.id}">✅ Task</button><button class="btn" data-act="followup" data-id="${i.id}">🔔 Follow-up</button><button class="btn" data-act="details" data-id="${i.id}">🗂️ Details</button><button class="btn danger" data-act="reject" data-id="${i.id}">✖ Not work</button>`)).join('');
+    },
+    tasks() {
+      const list = tasks().filter(matches).sort((a, b) => (a.status === 'done') - (b.status === 'done') || (a.due || 9e15) - (b.due || 9e15));
+      if (!list.length) return `<div class="view-head"><div class="view-title">✅ Tasks</div></div>` + empty('📝', 'No tasks yet', 'Accept items from the Inbox.');
+      return `<div class="view-head"><div class="view-title">✅ Tasks (${list.filter((i) => i.status !== 'done').length} open)</div></div>` +
+        list.map((i) => card(i, i.status === 'done' ? `<button class="btn" data-act="undo" data-id="${i.id}">↩ Reopen</button>` : `<button class="btn good" data-act="done" data-id="${i.id}">✓ Done</button><button class="btn" data-act="snooze" data-id="${i.id}">⏰ Remind me</button>`)).join('');
+    },
+    followups() {
+      const list = fups().filter(matches);
+      const mine = list.filter((i) => i.sender === 'me'), theirs = list.filter((i) => i.sender !== 'me');
+      const sec = (title, arr) => `<div class="section-title">${title} (${arr.length})</div>` + (arr.length ? arr.map((i) => card(i, `<button class="btn good" data-act="done" data-id="${i.id}">✓ Received</button><button class="btn" data-act="draft" data-id="${i.id}">📋 Reminder draft</button>`)).join('') : '<div class="empty">Nothing here</div>');
+      return sec('⏳ Waiting on them', mine) + sec('📤 I need to send', theirs);
+    },
+    schedule() {
+      const open = state.items.filter((i) => i.due && (i.status === 'task' || i.status === 'followup' || i.status === 'inbox'));
+      const bucket = (f) => open.filter(f).map((i) => `<div class="mini"><span class="dot" style="background:${i.company ? COMPANIES[i.company].color : '#94a3b8'}"></span><span class="txt">${esc(i.text)}</span>${dueChip(i)}</div>`).join('') || '<div class="empty">Nothing due</div>';
+      const d = new Date(today);
+      const comp = COMPLIANCE.map((c) => { const x = new Date(d.getFullYear(), d.getMonth() + (c.day < d.getDate() ? 1 : 0), c.day); return { ...c, ts: x.getTime() }; }).sort((a, b) => a.ts - b.ts);
+      return `<div class="section-title">Today</div>${bucket((i) => i.due <= today)}
+        <div class="section-title">Tomorrow</div>${bucket((i) => i.due === today + DAY)}
+        <div class="section-title">Later</div>${bucket((i) => i.due > today + DAY)}
+        <div class="section-title">🧾 Compliance dates</div>${comp.map((c) => `<div class="mini comp"><span class="txt">${c.label}</span><span class="due later">${fmtDate(c.ts)}</span></div>`).join('')}`;
+    },
+    details() {
+      const rows = state.items.filter((i) => i.status !== 'rejected').flatMap((i) => i.details.map((d) => ({ kind: d[0], val: d[1], i }))).filter((r) => !state.search || (r.val + r.kind).toLowerCase().includes(state.search));
+      if (!rows.length) return empty('🗂️', 'No details yet', 'GSTIN, PAN, UTR, IFSC and documents land here.');
+      const kinds = [...new Set(rows.map((r) => r.kind))];
+      return kinds.map((k) => `<div class="group"><div class="gh">${k} <span style="color:var(--muted)">${rows.filter((r) => r.kind === k).length}</span></div>` +
+        rows.filter((r) => r.kind === k).map((r) => `<div class="drow"><span class="kind">${k}</span><span class="val" data-copy="${esc(r.val)}" title="Click to copy">${esc(r.val)}</span><div class="src">${esc(r.i.chat)} · ${fmtTime(r.i.ts)}${r.i.company ? ' · ' + COMPANIES[r.i.company].short : ''}</div></div>`).join('') + '</div>').join('');
+    },
+    report() {
+      const total = $('wa-body').querySelectorAll('.bubble').length, work = $('wa-body').querySelectorAll('.bubble.hit').length;
+      return `<div class="banner-ok">✅ Coverage: all 1 active chat checked today</div>
+        <div class="stats"><div class="stat"><b>${total}</b><span>Messages</span></div><div class="stat"><b>${work}</b><span>Work items</span></div><div class="stat"><b>${total - work}</b><span>Skipped</span></div></div>
+        <div class="section-title">Export</div>
+        <div class="actions"><button class="btn" data-act="export">📊 Excel (4 sheets)</button><button class="btn" data-act="export">📄 CSV</button><button class="btn" data-act="export">💾 Backup JSON</button></div>
+        <p style="color:var(--muted);font-size:12px">The full version has a scheduled <b>Daily Sweep</b> that checks every chat active that day, read or unread, so nothing is missed.</p>`;
+    }
+  };
+
+  function render() {
+    const counts = { inbox: inbox().length, tasks: tasks().filter((i) => i.status !== 'done').length, followups: fups().length };
+    $('tabs').innerHTML = TABS.map(([id, ico, lbl]) => `<button class="tab${state.tab === id ? ' active' : ''}" data-tab="${id}"><span class="ico">${ico}${counts[id] ? `<span class="cnt${id === 'inbox' ? ' red' : ''}">${counts[id]}</span>` : ''}</span><span>${lbl}</span></button>`).join('');
+    $('view').innerHTML = VIEWS[state.tab]();
+  }
+
+  let toastT;
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (t.hidden = true), 1600); }
+
+  $('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-tab]'); if (b) { state.tab = b.dataset.tab; render(); } });
+  $('search').addEventListener('input', (e) => { state.search = e.target.value.trim().toLowerCase(); render(); });
+  $('view').addEventListener('click', (e) => {
+    const why = e.target.closest('[data-why]');
+    if (why) { const box = $('why-' + why.dataset.why); box.hidden = !box.hidden; return; }
+    const cp = e.target.closest('[data-copy]');
+    if (cp) { try { navigator.clipboard.writeText(cp.dataset.copy); } catch (_) {} toast('📋 Copied ' + cp.dataset.copy); return; }
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const item = state.items.find((i) => i.id === +b.dataset.id);
+    switch (b.dataset.act) {
+      case 'all': inbox().forEach((i) => (i.status = i.type === 'followup' ? 'followup' : i.type === 'details' ? 'details' : 'task')); toast('✅ All accepted'); break;
+      case 'task': item.status = 'task'; toast('Moved to Tasks'); break;
+      case 'followup': item.status = 'followup'; toast('Moved to Follow-ups'); break;
+      case 'details': item.status = 'details'; toast('Saved to Details vault'); break;
+      case 'reject': item.status = 'rejected'; toast('Removed — it learns from this'); break;
+      case 'done': item.status = 'done'; toast('🎉 Done'); break;
+      case 'undo': item.status = 'task'; break;
+      case 'snooze': toast('⏰ Reminder set for 1 hour'); break;
+      case 'draft': toast('📋 Polite reminder copied to clipboard'); break;
+      case 'export': toast('Export is available in the full version'); break;
+    }
+    render();
+  });
+  $('btn-new').addEventListener('click', () => toast('Manual add: also right-click any text → “Add as task”'));
+  $('wa-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = $('wa-input').value.trim(); if (!v) return;
+    $('wa-input').value = '';
+    addBubble({ who: 'me', text: v, ts: Date.now() });
+    if (state.tab !== 'inbox') { state.tab = 'inbox'; render(); }
+  });
+  document.querySelector('.try-hint').addEventListener('click', (e) => {
+    if (e.target.tagName === 'CODE') { $('wa-input').value = e.target.textContent; $('wa-input').focus(); }
+  });
+
+  let timers = [];
+  function play(instant) {
+    timers.forEach(clearTimeout); timers = [];
+    state.items = []; state.tab = 'inbox';
+    $('wa-body').innerHTML = '<div class="day">TODAY</div>';
+    render();
+    SCRIPT.forEach((m, k) => {
+      const msg = { ...m, ts: today + m.at * 36e5 };
+      if (instant) addBubble(msg); else timers.push(setTimeout(() => addBubble(msg), 700 + k * 1300));
+    });
+  }
+  $('replay').addEventListener('click', () => play(false));
+  $('fast').addEventListener('click', () => play(true));
+  window.__demo = { play, state, render };
+  play(/[?&]instant/.test(location.search));
+})();
+</script>
+</body>
+</html>
