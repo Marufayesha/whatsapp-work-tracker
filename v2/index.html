@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsApp Work Tracker v2 — Live Demo</title>
+<meta name="description" content="v2: reads work messages from ALL your WhatsApp Web chats, without opening them, and turns them into to-dos, follow-ups and reminders. macOS-style design, runs in Chrome on Windows, macOS and Linux.">
+<link rel="icon" href="../assets/v2/logo.png">
+<style>
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, "Nirmala UI", "Noto Sans Devanagari", sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  --page: #0d0f1a; --page-text: #e6e8f0; --page-muted: #a3a9bf;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--page-text); font: 14px/1.5 var(--font); -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+svg.i { width: 15px; height: 15px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- hero ---------- */
+.hero { max-width: 1180px; margin: 0 auto; padding: 34px 16px 18px; text-align: center; }
+.hero img { width: 84px; height: 84px; }
+.hero h1 { margin: 8px 0 6px; font-size: clamp(26px, 5vw, 40px); letter-spacing: -.025em; color: #fff; }
+.hero h1 small { font-size: .5em; vertical-align: middle; background: linear-gradient(90deg, #ff9f0a, #ff375f); color: #fff; padding: 2px 10px; border-radius: 999px; margin-left: 6px; }
+.hero p.lead { margin: 0 auto; max-width: 700px; font-size: clamp(15px, 2.4vw, 18px); color: #c9cde0; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0 4px; }
+.badges span { font-size: 12.5px; padding: 4px 11px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); color: #d4d8e8; }
+.vnav { margin-top: 12px; font-size: 13px; color: var(--page-muted); }
+.vnav a { color: #7cb4ff; }
+.demo-note { margin: 12px auto 0; max-width: 700px; font-size: 13px; color: var(--page-muted); }
+.demo-note b { color: #ffd60a; }
+.controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 14px 0 0; }
+.controls button { border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.06); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+.controls button:hover { background: rgba(255,255,255,.12); }
+
+/* ---------- desktop with wallpaper ---------- */
+.desk {
+  /* Apple system colours — light */
+  --blue: #007aff; --green: #34c759; --red: #ff3b30; --orange: #ff9500; --yellow: #ffcc00; --purple: #af52de; --teal: #30b0c7; --gray: #8e8e93; --indigo: #5856d6;
+  --label: rgba(0,0,0,.88); --label-2: rgba(0,0,0,.55); --label-3: rgba(0,0,0,.30);
+  --sep: rgba(0,0,0,.09); --fill: rgba(0,0,0,.05); --fill-2: rgba(0,0,0,.08);
+  --window: rgba(246,246,248,.80); --bar: rgba(250,250,252,.62); --group: rgba(255,255,255,.92);
+  --row-hover: rgba(0,0,0,.035); --control: rgba(255,255,255,.85); --win-rim: rgba(255,255,255,.65);
+  --win-shadow: 0 0 0 .5px rgba(0,0,0,.12), 0 22px 60px -10px rgba(0,0,0,.40), 0 8px 18px -8px rgba(0,0,0,.22);
+  --bubble-in: #e9e9eb; --fs: 13px;
+  color-scheme: light;
+  max-width: 1180px; margin: 18px auto 0; border-radius: 22px; padding: 26px 22px; position: relative; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 22px; align-items: start; color: var(--label);
+  background:
+    radial-gradient(120% 70% at 10% 0%, #ffb86b 0%, rgba(255,184,107,0) 55%),
+    radial-gradient(90% 60% at 100% 20%, #ff6fa8 0%, rgba(255,111,168,0) 60%),
+    radial-gradient(120% 80% at 0% 100%, #4f7cff 0%, rgba(79,124,255,0) 60%),
+    radial-gradient(100% 70% at 100% 100%, #7b4dff 0%, rgba(123,77,255,0) 65%),
+    linear-gradient(180deg, #ffd5a8 0%, #c79bff 55%, #5b7cff 100%);
+  transition: background .4s;
+}
+.desk[data-theme="dark"] {
+  --blue: #0a84ff; --green: #30d158; --red: #ff453a; --orange: #ff9f0a; --yellow: #ffd60a; --purple: #bf5af2; --teal: #40c8e0; --gray: #98989d; --indigo: #5e5ce6;
+  --label: rgba(255,255,255,.92); --label-2: rgba(255,255,255,.58); --label-3: rgba(255,255,255,.30);
+  --sep: rgba(255,255,255,.10); --fill: rgba(255,255,255,.06); --fill-2: rgba(255,255,255,.10);
+  --window: rgba(30,30,32,.78); --bar: rgba(44,44,47,.55); --group: rgba(48,48,52,.82);
+  --row-hover: rgba(255,255,255,.04); --control: rgba(255,255,255,.12); --win-rim: rgba(255,255,255,.12);
+  --win-shadow: 0 0 0 .5px rgba(0,0,0,.6), 0 22px 60px -10px rgba(0,0,0,.75);
+  --bubble-in: #3a3a3c;
+  color-scheme: dark;
+  background:
+    radial-gradient(120% 70% at 10% 0%, #7a3e1d 0%, rgba(122,62,29,0) 55%),
+    radial-gradient(90% 60% at 100% 20%, #6b1f4a 0%, rgba(107,31,74,0) 60%),
+    radial-gradient(120% 80% at 0% 100%, #142a6e 0%, rgba(20,42,110,0) 60%),
+    radial-gradient(100% 70% at 100% 100%, #2c1466 0%, rgba(44,20,102,0) 65%),
+    linear-gradient(180deg, #2a1a24 0%, #1b1430 55%, #0b1430 100%);
+}
+@media (max-width: 900px) { .desk { grid-template-columns: minmax(0, 1fr); padding: 16px 12px; margin: 18px 12px 0; } }
+
+.window { display: flex; flex-direction: column; overflow: hidden; border-radius: 20px; background: var(--window);
+  -webkit-backdrop-filter: blur(50px) saturate(190%); backdrop-filter: blur(50px) saturate(190%);
+  box-shadow: inset 0 0 0 .5px var(--win-rim), var(--win-shadow); font-size: var(--fs); line-height: 1.42; }
+.titlebar { height: 50px; display: flex; align-items: center; padding: 0 12px 0 16px; gap: 10px; background: var(--bar); border-bottom: .5px solid var(--sep); flex: none; }
+.lights { display: flex; gap: 8px; flex: none; }
+.light { width: 12px; height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.18); }
+.light.close { background: #ff5f57; } .light.min { background: #febc2e; } .light.zoom { background: #28c840; }
+.wtitle { flex: 1; min-width: 0; text-align: center; line-height: 1.15; }
+.wtitle .name { font-weight: 700; font-size: 13px; }
+.status { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--label-2); }
+.status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--green) 25%, transparent); }
+.tbtn { flex: none; width: 30px; height: 26px; border-radius: 999px; display: grid; place-items: center; cursor: pointer; color: var(--label-2); background: var(--control); border: .5px solid var(--sep); }
+
+/* left window: WhatsApp chat list */
+.wa { height: 640px; }
+@media (max-width: 900px) { .wa { height: 430px; } }
+.wa-list { flex: 1; overflow-y: auto; }
+.wa-row { display: flex; gap: 10px; align-items: center; padding: 9px 14px; border-bottom: .5px solid var(--sep); transition: background .4s; }
+.wa-row.flash { background: color-mix(in srgb, var(--green) 18%, transparent); }
+.av { width: 38px; height: 38px; border-radius: 50%; flex: none; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 13px; }
+.wa-row .mid { flex: 1; min-width: 0; }
+.wa-row .nm { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wa-row .pv { font-size: 12.5px; color: var(--label-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wa-row .rt { text-align: right; font-size: 11px; color: var(--label-2); white-space: nowrap; }
+.unread { display: inline-block; min-width: 19px; padding: 0 6px; margin-top: 3px; border-radius: 999px; background: #25d366; color: #fff; font-size: 11px; font-weight: 700; line-height: 19px; text-align: center; }
+.closed-note { font-size: 11.5px; color: var(--label-2); padding: 8px 14px; background: var(--bar); border-bottom: .5px solid var(--sep); display: flex; gap: 6px; align-items: center; }
+.composer { display: flex; gap: 8px; padding: 9px 10px; background: var(--bar); border-top: .5px solid var(--sep); align-items: center; }
+.composer select, .composer input { height: 30px; border-radius: 999px; border: .5px solid var(--sep); background: var(--control); padding: 0 12px; color: var(--label); }
+.composer select { max-width: 130px; }
+.composer input { flex: 1; min-width: 0; }
+.composer button { height: 30px; border: 0; border-radius: 999px; padding: 0 14px; background: var(--blue); color: #fff; font-weight: 600; cursor: pointer; }
+.try { font-size: 11.5px; color: var(--label-2); padding: 0 12px 9px; background: var(--bar); }
+.try code { font-family: var(--mono); background: var(--fill-2); border-radius: 5px; padding: 0 5px; cursor: pointer; }
+
+/* right window: Work Tracker */
+.panel-wrap { position: relative; }
+.wt { height: 640px; }
+@media (max-width: 900px) { .wt { height: 620px; } }
+.toolbar { flex: none; padding: 8px 10px 9px; display: flex; flex-direction: column; gap: 8px; background: var(--bar); border-bottom: .5px solid var(--sep); }
+.segmented { display: flex; padding: 2px; border-radius: 999px; background: var(--fill-2); }
+.tab { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 4px; height: 26px; padding: 0 4px; border: 0; background: none; border-radius: 999px; cursor: pointer; color: var(--label-2); font-size: 11.5px; font-weight: 560; white-space: nowrap; }
+.tab svg.i { width: 14px; height: 14px; }
+.tab .lbl { overflow: hidden; text-overflow: ellipsis; }
+.tab.on { color: var(--label); background: var(--control); box-shadow: 0 1px 3px rgba(0,0,0,.14); }
+.tab b { min-width: 15px; padding: 0 4px; border-radius: 999px; font-size: 9.5px; font-weight: 700; line-height: 14px; color: #fff; background: var(--gray); }
+.tab b.red { background: var(--red); }
+.tab .lbl { display: none; } .tab.on .lbl { display: inline; } .tab.on { flex-grow: 2.6; }
+.search { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 9px; border-radius: 999px; color: var(--label-2); background: var(--fill); border: .5px solid var(--sep); }
+.search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--label); }
+.view { flex: 1; overflow-y: auto; padding: 10px 12px 26px; }
+.sec { display: flex; align-items: baseline; gap: 6px; margin: 14px 6px 6px; font-weight: 700; letter-spacing: -.01em; }
+.sec:first-child { margin-top: 2px; }
+.sec .n { margin-left: auto; font-weight: 600; color: var(--label-2); font-size: 12px; }
+.list { background: var(--group); border-radius: 12px; box-shadow: 0 0 0 .5px var(--sep), 0 1px 2px rgba(0,0,0,.04); overflow: hidden; margin-bottom: 10px; }
+.list > * + * { border-top: .5px solid var(--sep); }
+.card { display: flex; gap: 10px; padding: 9px 12px 9px 10px; animation: rise .35s ease-out; }
+.card:hover { background: var(--row-hover); }
+.check { flex: none; width: 20px; height: 20px; margin-top: 1px; border-radius: 50%; padding: 0; cursor: pointer; background: none; border: 1.6px solid var(--ring, var(--label-3)); display: grid; place-items: center; color: #fff; }
+.check svg.i { width: 12px; height: 12px; stroke-width: 3; opacity: 0; }
+.card.done .check { background: var(--ring, var(--blue)); border-color: var(--ring, var(--blue)); }
+.card.done .check svg.i { opacity: 1; }
+.card.done .t { color: var(--label-2); text-decoration: line-through; }
+.card .body { flex: 1; min-width: 0; }
+.card .t { font-weight: 450; word-break: break-word; }
+.card .m { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 8px; margin-top: 2px; font-size: 11.5px; color: var(--label-2); }
+.card .m svg.i { width: 11px; height: 11px; }
+.card .flag { flex: none; color: var(--orange); margin-top: 3px; }
+.card .flag svg.i { fill: currentColor; width: 14px; height: 14px; }
+.tag { display: inline-flex; align-items: center; gap: 3px; font-weight: 600; font-size: 11px; color: var(--c, var(--label-2)); }
+.due { font-weight: 600; } .due.over { color: var(--red); } .due.today { color: var(--blue); }
+.acts { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px; border-radius: 999px; cursor: pointer; white-space: nowrap; font-size: 11.5px; font-weight: 520; color: var(--label); background: var(--control); border: .5px solid var(--sep); box-shadow: 0 .5px 1.5px rgba(0,0,0,.1); }
+.btn.good { color: var(--green); } .btn.bad { color: var(--red); }
+.note { display: flex; gap: 6px; margin-top: 6px; padding: 6px 8px; border-radius: 8px; font-size: 12px; background: color-mix(in srgb, var(--blue) 10%, transparent); }
+.empty { text-align: center; color: var(--label-2); padding: 34px 18px; font-size: 12.5px; }
+.empty .big { width: 54px; height: 54px; margin: 0 auto 12px; border-radius: 14px; display: grid; place-items: center; color: #fff; background: linear-gradient(180deg, color-mix(in srgb, var(--blue) 75%, #fff), var(--blue)); }
+.empty .big svg.i { width: 26px; height: 26px; }
+.empty b { display: block; color: var(--label); font-size: 15px; margin-bottom: 4px; }
+.chatrow { display: flex; gap: 10px; align-items: center; padding: 8px 12px; cursor: pointer; }
+.chatrow:hover { background: var(--row-hover); }
+.chatrow .mid { flex: 1; min-width: 0; }
+.chatrow .nm { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chatrow .pv { font-size: 12px; color: var(--label-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chatrow .ct { font-size: 11px; color: var(--label-2); text-align: right; white-space: nowrap; }
+.chatbar { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; }
+.chatbar b { flex: 1; font-size: 14px; }
+.bubbles { display: flex; flex-direction: column; gap: 4px; }
+.bub { max-width: 82%; padding: 6px 11px; border-radius: 17px; word-break: break-word; background: var(--bubble-in); align-self: flex-start; }
+.bub.out { align-self: flex-end; background: var(--blue); color: #fff; }
+.bub .meta { font-size: 10px; margin-top: 2px; opacity: .65; display: flex; gap: 6px; }
+.bub .meta .w { font-weight: 700; letter-spacing: .04em; }
+.bub.work { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--orange) 75%, transparent); }
+.bub.out.work { box-shadow: 0 0 0 1.5px var(--yellow); }
+.tile { flex: none; width: 24px; height: 24px; border-radius: 6.5px; display: grid; place-items: center; color: #fff; background: linear-gradient(180deg, color-mix(in srgb, var(--c, var(--gray)) 78%, #fff), var(--c, var(--gray))); }
+.tile svg.i { width: 14px; height: 14px; stroke-width: 2; }
+.ghead { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 6px 12px; font-weight: 600; }
+.ghead .n { margin-left: auto; color: var(--label-2); font-weight: 500; }
+.drow { padding: 7px 12px 7px 46px; }
+.drow .val { cursor: pointer; font-family: var(--mono); font-size: 12px; font-weight: 500; }
+.drow .val:hover { color: var(--blue); }
+.drow .src { font-size: 11px; color: var(--label-2); }
+.srow { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 6px 12px; }
+.srow .lbl { flex: 1; min-width: 0; }
+.srow .lbl small { display: block; color: var(--label-2); font-size: 11px; }
+.srow .val { color: var(--label-2); }
+.seg { display: inline-flex; padding: 2px; border-radius: 999px; background: var(--fill-2); }
+.seg button { border: 0; background: none; border-radius: 999px; height: 22px; padding: 0 10px; font-size: 11.5px; font-weight: 560; color: var(--label-2); cursor: pointer; }
+.seg button.on { color: var(--label); background: var(--control); box-shadow: 0 1px 3px rgba(0,0,0,.14); }
+.switch { appearance: none; -webkit-appearance: none; width: 32px; height: 19px; margin: 0; border-radius: 999px; position: relative; background: var(--fill-2); cursor: pointer; transition: background .2s; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 15px; height: 15px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .22s; }
+.switch:checked { background: var(--green); } .switch:checked::after { transform: translateX(13px); }
+.banner { position: absolute; z-index: 5; top: 58px; right: 10px; left: 10px; display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 16px;
+  background: var(--window); -webkit-backdrop-filter: blur(40px) saturate(180%); backdrop-filter: blur(40px) saturate(180%); box-shadow: 0 0 0 .5px var(--sep), 0 14px 34px -10px rgba(0,0,0,.4); animation: slidein .38s cubic-bezier(.2,1.2,.4,1); color: var(--label); font-size: 12.5px; }
+.banner img { width: 30px; height: 30px; border-radius: 7px; }
+.banner .bx { flex: 1; min-width: 0; } .banner .bt { font-weight: 700; } .banner .bm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wlabel { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.92); text-shadow: 0 1px 3px rgba(0,0,0,.35); margin: 0 0 7px 6px; }
+
+/* ---------- features ---------- */
+.features { max-width: 1180px; margin: 0 auto; padding: 30px 16px 8px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.feat { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09); border-radius: 14px; padding: 14px; }
+.feat h3 { margin: 0 0 4px; font-size: 15px; color: #fff; }
+.feat p { margin: 0; color: #aab0c6; font-size: 13.5px; }
+.cta { text-align: center; padding: 26px 16px 50px; color: #c9cde0; }
+.cta a.btn-cta { display: inline-block; margin-top: 10px; background: linear-gradient(180deg, #3b9bff, #007aff); color: #fff; text-decoration: none; font-weight: 700; padding: 10px 20px; border-radius: 999px; }
+
+@keyframes rise { from { transform: translateY(-5px); opacity: 0; } }
+@keyframes slidein { from { transform: translateY(-14px); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <img src="../assets/v2/logo.png" alt="">
+  <h1>Work Tracker <small>v2</small></h1>
+  <p class="lead">Now it reads <b>all your WhatsApp chats, without opening them</b>, and turns work messages into to-dos, follow-ups and reminders. Plus a clean macOS-style design with dark mode.</p>
+  <div class="badges">
+    <span>🪟 Windows</span><span>🍎 macOS</span><span>🐧 Linux</span><span>🧩 Runs in Google Chrome</span><span>🔒 Read-only &amp; offline</span><span>✅ 118 automated tests</span>
+  </div>
+  <div class="vnav">You're viewing <b>v2</b> · <a href="../">see the original v1 demo →</a></div>
+  <p class="demo-note"><b>Live demo:</b> new messages land in different chats on the left. None of them are opened, and the Work Tracker still catches them. Try Settings → Appearance → Dark. All chats, names and numbers are made-up sample data.</p>
+  <div class="controls"><button id="replay">▶ Replay</button><button id="fast">⏩ Show all now</button><button id="theme">🌓 Light / Dark</button></div>
+</header>
+
+<section class="desk" id="desk">
+  <div>
+    <div class="wlabel">WhatsApp Web (simulated)</div>
+    <div class="window wa">
+      <div class="titlebar"><div class="lights"><span class="light close"></span><span class="light min"></span><span class="light zoom"></span></div><div class="wtitle"><div class="name">Chats</div></div><span style="width:30px"></span></div>
+      <div class="closed-note">🔒 No chat is open. Work Tracker reads every chat in the background.</div>
+      <div class="wa-list" id="wa-list"></div>
+      <form class="composer" id="composer"><select id="c-chat" aria-label="Chat"></select><input id="c-text" placeholder="Send a test message…" autocomplete="off"><button>Send</button></form>
+      <div class="try">Try: <code>Sir ITR 25 tak file karna hai</code> · <code>Kal tak quotation bhej dunga</code> · <code>Payment ₹8,000 received</code></div>
+    </div>
+  </div>
+  <div>
+    <div class="wlabel">Work Tracker side panel</div>
+    <div class="panel-wrap">
+      <div class="window wt">
+        <div class="titlebar">
+          <div class="lights"><span class="light close"></span><span class="light min"></span><span class="light zoom"></span></div>
+          <div class="wtitle"><div class="name">Work Tracker</div><span class="status"><span class="dot"></span><span id="status-txt">Live · 6 chats synced</span></span></div>
+          <button class="tbtn" id="btn-add" title="New task" aria-label="New task"></button>
+        </div>
+        <div class="toolbar"><nav class="segmented" id="tabs"></nav><label class="search"><span id="search-ico"></span><input id="search" type="search" placeholder="Search"></label></div>
+        <main class="view" id="view"></main>
+      </div>
+      <div class="banner" id="banner" hidden></div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="feat"><h3>📡 Every chat, unopened</h3><p>v1 could only see the chat on your screen. v2 reads all recent chats in the background, including new messages that arrive while you're busy elsewhere.</p></div>
+  <div class="feat"><h3>⚡ Catches up instantly</h3><p>On first start it reads the last few days of every chat. After that, each new message is processed the moment it arrives.</p></div>
+  <div class="feat"><h3>🍎 macOS-style design</h3><p>Traffic lights, translucent glass and a segmented toolbar. To-do looks like Reminders, Messages like the Messages app.</p></div>
+  <div class="feat"><h3>🌓 Light, Dark &amp; text size</h3><p>Auto, Light or Dark appearance and four text sizes. It looks native on Windows, macOS and Linux.</p></div>
+  <div class="feat"><h3>🔔 Smarter follow-ups</h3><p>Four groups: They replied, Waiting on them, They will send, and I promised. Promises like “kal bhej dunga” are tracked too.</p></div>
+  <div class="feat"><h3>🔒 Read-only by design</h3><p>It never sends a message, never marks chats as read (no blue ticks) and never opens a chat. Tracking is blocked and everything stays on your computer.</p></div>
+</section>
+
+<div class="cta">
+  <div>Full source code is coming soon. Star the repo to get notified.</div>
+  <a class="btn-cta" href="https://github.com/Marufayesha/whatsapp-work-tracker">⭐ Star on GitHub</a>
+</div>
+
+<script>
+// Demo only: sample data + a tiny simplified matcher made for this page.
+// This is NOT the extension's real detection engine.
+(() => {
+  // ---- tiny icon set (simple strokes, drawn for this demo) ----
+  const P = {
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    list: '<circle cx="5" cy="7" r="1.3"/><circle cx="5" cy="12" r="1.3"/><circle cx="5" cy="17" r="1.3"/><path d="M9.5 7H20M9.5 12H20M9.5 17H20"/>',
+    bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+    chat: '<path d="M4 5.5h16v10H9l-4.5 3.5V15.5H4z"/>',
+    folder: '<path d="M3.5 7a1.5 1.5 0 0 1 1.5-1.5h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v8.5A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    search: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
+    flag: '<path d="M6 21V4h11l-2 4 2 4H6"/>',
+    cal: '<rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M4 10h16M9 3.5v4M15 3.5v4"/>',
+    user: '<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+    building: '<path d="M5 20V5h9v15M14 9h5v11M8 8.5h3M8 12h3M8 15.5h3"/>',
+    reply: '<path d="M10 8L5 12.5 10 17"/><path d="M5 12.5h9a5 5 0 0 1 5 5V19"/>',
+    sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+    wifi: '<path d="M4 9.5a12 12 0 0 1 16 0M7 13a7.5 7.5 0 0 1 10 0M10 16.5a3 3 0 0 1 4 0"/><circle cx="12" cy="19.2" r=".8"/>',
+    shield: '<path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z"/>',
+    download: '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/>',
+    hash: '<path d="M9 4L7.5 20M16.5 4L15 20M4.5 9h15M4 15h15"/>',
+    bank: '<path d="M3.5 9.5L12 4.5l8.5 5M5.5 10v7M10 10v7M14 10v7M18.5 10v7M3.5 19.5h17"/>',
+    doc: '<path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5v4h4"/>',
+    rupee: '<path d="M7 5h10M7 9h10M7 5h3.5a4 4 0 0 1 0 8H7l7 6.5"/>'
+  };
+  const icon = (n) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ''}</svg>`;
+
+  const COMPANIES = { ACME: { short: 'Acme Traders', c: 'var(--blue)' }, SUN: { short: 'Sunrise Foods', c: 'var(--purple)' }, GREEN: { short: 'Greenleaf Agro', c: 'var(--teal)' } };
+  const CHATS = [
+    { id: 'acc', name: 'Accounts Team', group: true, color: '#34c759' },
+    { id: 'ca', name: 'Rahul · CA Office', color: '#5856d6' },
+    { id: 'sun', name: 'Sunrise Foods Purchase', group: true, color: '#af52de' },
+    { id: 'priya', name: 'Priya', color: '#ff9500' },
+    { id: 'vendor', name: 'Vendor Desk', color: '#30b0c7' },
+    { id: 'fam', name: 'Family 🏠', group: true, color: '#ff2d55', ignored: true }
+  ];
+  const DAY = 864e5;
+  const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
+  const today = startOfDay(Date.now());
+  const fmtTime = (ts) => new Date(ts).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  const fmtDate = (ts) => new Date(ts).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const initials = (n) => n.replace(/[^\p{L} ]/gu, '').split(' ').filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+
+  const SCRIPT = [
+    { chat: 'fam', who: 'Mummy', text: 'Khana kha liya? 🍲', at: -20 },
+    { chat: 'acc', who: 'Rahul', text: 'Sir Acme Traders ka GST invoice aaj tak bhej dijiye, urgent hai', at: 9.3 },
+    { chat: 'vendor', who: 'Vendor Desk', text: 'Payment of ₹45,000 done for Sunrise Foods. UTR 402918377561', at: 10.2 },
+    { chat: 'priya', who: 'me', text: 'Priya please TDS challan share kar dijiye', at: 10.6 },
+    { chat: 'ca', who: 'Rahul', text: 'Greenleaf Agro GSTIN 27ABCDE1234F1Z5, PAN ABCDE1234F', at: 11.4 },
+    { chat: 'sun', who: 'Amit', text: 'Stock statement kal bhej dunga sir', at: 11.9 },
+    { chat: 'acc', who: 'Priya', text: 'Good morning everyone 🌞', at: 12.0 },
+    { chat: 'sun', who: 'me', text: 'Audit report 20 tak finalize karna hai — Sunrise Foods', at: 12.2 },
+    { chat: 'ca', who: 'me', text: 'Monday ko ROC filing ka status bata dunga', at: 12.5 },
+    { chat: 'priya', who: 'Priya', text: 'Sir challan bhej diya 👍 check kar lijiye', at: 13.1 },
+    { chat: 'vendor', who: 'Vendor Desk', text: '📄 Invoice_Sept_Acme.pdf', at: 13.4 }
+  ];
+
+  const state = { tab: 'todo', items: [], details: [], msgs: [], search: '', seq: 0, openChat: null, theme: 'light', size: 13 };
+  const $ = (id) => document.getElementById(id);
+
+  // ---- toy matcher (demo only) ----
+  function demoAnalyze(text, sentAt, fromMe) {
+    const t = text.toLowerCase();
+    const why = [];
+    const details = [];
+    const gst = text.match(/\b\d{2}[A-Z]{5}\d{4}[A-Z]\d[Z][A-Z\d]\b/); if (gst) details.push(['GSTIN', gst[0]]);
+    const pan = text.replace(gst ? gst[0] : '', '').match(/\b[A-Z]{5}\d{4}[A-Z]\b/); if (pan) details.push(['PAN', pan[0]]);
+    const utr = text.match(/\butr\s*[:#]?\s*(\w{10,22})/i); if (utr) details.push(['UTR', utr[1]]);
+    const doc = text.match(/[\w-]+\.(pdf|xlsx?|docx?|jpg|png)\b/i); if (doc) details.push(['Document', doc[0]]);
+    const amountM = text.match(/(?:₹|rs\.?\s*|inr\s*)([\d,]+)/i); const amount = amountM ? Number(amountM[1].replace(/,/g, '')) : null;
+    if (amount) details.push(['Amount', '₹' + amount.toLocaleString('en-IN')]);
+
+    let type = null;
+    if (/payment|paid|received|utr|neft|imps/.test(t)) type = 'payment';
+    else if (fromMe && /please|pls|share kar|bhej d|send|de dijiye|kar dijiye/.test(t)) type = 'waiting';
+    else if (/(bhej|kar|de|bata)\s?(dunga|denge|dungi|deta)|will send/.test(t)) type = fromMe ? 'promised' : 'theywill';
+    else if (/bhej diya|sent|done|ho gaya/.test(t)) type = 'reply';
+    else if (doc && text.replace(doc[0], '').replace(/[^\p{L}\p{N}]/gu, '').length < 3) type = 'details';
+    else if (/invoice|bill|\bgst\b|tds|itr|roc|audit|report|file karna|finalize|submit|challan|urgent|quotation|statement|\d{1,2}\s*tak/.test(t)) type = 'task';
+    else if (details.length) type = 'details';
+    if (!type) return null;
+
+    let due = null; const base = startOfDay(sentAt);
+    if (/\b(aaj|today|eod)\b/.test(t)) { due = base; why.push('“aaj” → today'); }
+    else if (/\b(kal|tomorrow)\b/.test(t)) { due = base + DAY; why.push('“kal” → tomorrow'); }
+    else if (/\bmonday\b/.test(t)) { const d = new Date(base); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); due = startOfDay(d); }
+    else { const n = t.match(/\b(\d{1,2})\s*(tak|tk|ko)\b/); if (n && +n[1] <= 31) { const d = new Date(base); if (+n[1] < d.getDate()) d.setMonth(d.getMonth() + 1); d.setDate(+n[1]); due = startOfDay(d); } }
+    let company = null;
+    if (t.includes('acme')) company = 'ACME'; else if (t.includes('sunrise')) company = 'SUN'; else if (t.includes('greenleaf')) company = 'GREEN';
+    return { type, due, company, high: /urgent|asap|turant|jaldi/.test(t), amount, details };
+  }
+
+  // ---- WhatsApp chat list ----
+  const chatState = Object.fromEntries(CHATS.map((c) => [c.id, { last: '', ts: 0, unread: 0 }]));
+  function renderWA(flashId) {
+    const rows = CHATS.slice().sort((a, b) => chatState[b.id].ts - chatState[a.id].ts);
+    $('wa-list').innerHTML = rows.map((c) => {
+      const s = chatState[c.id];
+      return `<div class="wa-row${c.id === flashId ? ' flash' : ''}"><div class="av" style="background:${c.color}">${esc(initials(c.name))}</div>
+        <div class="mid"><div class="nm">${esc(c.name)}</div><div class="pv">${esc(s.last || '—')}</div></div>
+        <div class="rt">${s.ts ? fmtTime(s.ts) : ''}${s.unread ? `<div><span class="unread">${s.unread}</span></div>` : ''}</div></div>`;
+    }).join('');
+    if (flashId) setTimeout(() => document.querySelector('.wa-row.flash')?.classList.remove('flash'), 900);
+  }
+
+  function receive(m, quiet) {
+    const chat = CHATS.find((c) => c.id === m.chat);
+    const s = chatState[m.chat];
+    s.last = (m.who === 'me' ? 'You: ' : chat.group ? m.who + ': ' : '') + m.text; s.ts = m.ts;
+    if (m.who !== 'me') s.unread++;
+    renderWA(m.chat);
+    const r = chat.ignored ? null : demoAnalyze(m.text, m.ts, m.who === 'me');
+    state.msgs.push({ ...m, work: !!r });
+    if (r) {
+      if (r.type === 'reply') {
+        const w = state.items.find((i) => i.chat === m.chat && i.type === 'waiting' && i.status === 'open');
+        if (w) { w.replied = m.text; if (!quiet) notify(chat.name, 'Reply received: ' + m.text); }
+      } else if (r.type !== 'details') {
+        state.items.push({ id: ++state.seq, chat: m.chat, who: m.who, text: m.text, ts: m.ts, status: 'open', ...r });
+        if (!quiet) notify(chat.name, m.text);
+      }
+      r.details.forEach(([k, v]) => { if (!state.details.some((d) => d.k === k && d.v === v)) state.details.push({ k, v, chat: m.chat, ts: m.ts, company: r.company }); });
+    }
+    render();
+  }
+
+  let bannerT;
+  function notify(title, msg) {
+    const b = $('banner');
+    b.innerHTML = `<img src="../assets/v2/logo.png" alt=""><div class="bx"><div class="bt">${esc(title)}</div><div class="bm">${esc(msg)}</div></div><span style="font-size:11px;color:var(--label-2)">now</span>`;
+    b.hidden = false; b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
+    clearTimeout(bannerT); bannerT = setTimeout(() => (b.hidden = true), 2200);
+  }
+
+  // ---- panel ----
+  const TABS = [['todo', 'list', 'To-do'], ['fu', 'bell', 'Follow-ups'], ['msgs', 'chat', 'Messages'], ['det', 'folder', 'Details'], ['set', 'gear', 'Settings']];
+  const chatName = (id) => CHATS.find((c) => c.id === id).name;
+  const matches = (i) => !state.search || (i.text + ' ' + chatName(i.chat)).toLowerCase().includes(state.search);
+  const todos = () => state.items.filter((i) => ['task', 'payment'].includes(i.type));
+  const fups = () => state.items.filter((i) => ['waiting', 'theywill', 'promised'].includes(i.type) && i.status === 'open');
+
+  function dueLabel(i) {
+    if (!i.due) return '';
+    const d = Math.round((i.due - today) / DAY);
+    const cls = d < 0 ? 'over' : d === 0 ? 'today' : '';
+    return `<span class="due ${cls}">${icon('cal')} ${d < 0 ? 'Overdue' : d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : fmtDate(i.due)}</span>`;
+  }
+  function card(i, extra = '') {
+    const co = i.company ? `<span class="tag" style="--c:${COMPANIES[i.company].c}">${icon('building')} ${COMPANIES[i.company].short}</span>` : '';
+    const ring = i.high ? 'var(--red)' : i.company ? COMPANIES[i.company].c : 'var(--label-3)';
+    return `<div class="card${i.status === 'done' ? ' done' : ''}"><button class="check" style="--ring:${ring}" data-act="toggle" data-id="${i.id}" aria-label="Done">${icon('check')}</button>
+      <div class="body"><div class="t">${esc(i.text)}</div>
+      <div class="m">${dueLabel(i)}<span>${icon('chat')} ${esc(chatName(i.chat))}</span>${i.who !== 'me' && CHATS.find((c) => c.id === i.chat).group ? `<span>${icon('user')} ${esc(i.who)}</span>` : ''}${co}${i.amount ? `<span class="tag" style="--c:var(--green)">₹${i.amount.toLocaleString('en-IN')}</span>` : ''}</div>
+      ${extra}${i.status !== 'done' ? `<div class="acts"><button class="btn" data-act="remind" data-id="${i.id}">⏰ Remind</button><button class="btn" data-act="draft" data-id="${i.id}">💬 Reply draft</button><button class="btn bad" data-act="notwork" data-id="${i.id}">Not work</button></div>` : ''}</div>
+      ${i.high && i.status !== 'done' ? `<span class="flag">${icon('flag')}</span>` : ''}</div>`;
+  }
+  const sec = (name, n, color) => `<div class="sec" style="color:var(--${color})">${name}<span class="n">${n}</span></div>`;
+  const empty = (ic, b, s) => `<div class="empty"><div class="big">${icon(ic)}</div><b>${b}</b>${s}</div>`;
+
+  const VIEWS = {
+    todo() {
+      const open = todos().filter((i) => i.status === 'open' && matches(i)).sort((a, b) => (a.due || 9e15) - (b.due || 9e15));
+      const done = todos().filter((i) => i.status === 'done' && matches(i));
+      if (!open.length && !done.length) return empty('sparkle', 'All clear', 'Work messages from all your chats appear here automatically.');
+      const groups = [['Overdue', open.filter((i) => i.due && i.due < today), 'red'], ['Today', open.filter((i) => i.due === today), 'blue'],
+        ['Scheduled', open.filter((i) => i.due > today), 'orange'], ['No date', open.filter((i) => !i.due), 'gray'], ['Done', done, 'green']];
+      return groups.filter((g) => g[1].length).map(([n, arr, c]) => sec(n, arr.length, c) + `<div class="list">${arr.map((i) => card(i)).join('')}</div>`).join('');
+    },
+    fu() {
+      const list = fups().filter(matches);
+      if (!list.length) return empty('bell', 'No follow-ups', 'When you ask someone for something, or someone promises (“kal bhej dunga”), it shows up here.');
+      const groups = [['They replied', list.filter((i) => i.replied), 'blue', (i) => `<div class="note">${icon('reply')} ${esc(i.replied)}</div>`],
+        ['Waiting on them', list.filter((i) => i.type === 'waiting' && !i.replied), 'purple'],
+        ['They will send', list.filter((i) => i.type === 'theywill'), 'orange'],
+        ['I promised', list.filter((i) => i.type === 'promised'), 'teal']];
+      return groups.filter((g) => g[1].length).map(([n, arr, c, ex]) => sec(n, arr.length, c) + `<div class="list">${arr.map((i) => card(i, ex ? ex(i) : '')).join('')}</div>`).join('');
+    },
+    msgs() {
+      if (state.openChat) {
+        const c = CHATS.find((x) => x.id === state.openChat);
+        const ms = state.msgs.filter((m) => m.chat === c.id);
+        return `<div class="chatbar"><button class="btn" data-act="back">‹ Chats</button><b>${esc(c.name)}</b>${c.ignored ? '<span class="tag">Ignored</span>' : ''}</div><div class="bubbles">` +
+          ms.map((m) => `<div class="bub${m.who === 'me' ? ' out' : ''}${m.work ? ' work' : ''}">${c.group && m.who !== 'me' ? `<b style="font-size:11px">${esc(m.who)}</b><br>` : ''}${esc(m.text)}<div class="meta"><span>${fmtTime(m.ts)}</span>${m.work ? '<span class="w">WORK</span>' : ''}</div></div>`).join('') + '</div>';
+      }
+      const rows = CHATS.filter((c) => state.msgs.some((m) => m.chat === c.id)).sort((a, b) => chatState[b.id].ts - chatState[a.id].ts);
+      if (!rows.length) return empty('chat', 'Syncing…', 'Chats appear here as they are read.');
+      return sec('Synced chats', rows.length, 'gray') + `<div class="list">${rows.map((c) => {
+        const ms = state.msgs.filter((m) => m.chat === c.id); const w = ms.filter((m) => m.work).length;
+        return `<div class="chatrow" data-act="open" data-chat="${c.id}"><div class="av" style="background:${c.color};width:34px;height:34px">${esc(initials(c.name))}</div><div class="mid"><div class="nm">${esc(c.name)}</div><div class="pv">${esc(ms[ms.length - 1].text)}</div></div><div class="ct">${ms.length} msgs<br>${c.ignored ? '<span class="tag">Ignored</span>' : w ? `<span class="tag" style="--c:var(--orange)">${w} work</span>` : ''}</div></div>`;
+      }).join('')}</div>`;
+    },
+    det() {
+      const rows = state.details.filter((d) => !state.search || (d.k + d.v).toLowerCase().includes(state.search));
+      if (!rows.length) return empty('folder', 'No details yet', 'GSTIN, PAN, Bank, UTR, invoices and amounts land here.');
+      const meta = { GSTIN: ['hash', 'var(--blue)'], PAN: ['user', 'var(--indigo)'], UTR: ['bank', 'var(--green)'], Document: ['doc', 'var(--orange)'], Amount: ['rupee', 'var(--teal)'] };
+      return [...new Set(rows.map((r) => r.k))].map((k) => { const arr = rows.filter((r) => r.k === k); const [ic, c] = meta[k] || ['folder', 'var(--gray)'];
+        return `<div class="list"><div class="ghead"><span class="tile" style="--c:${c}">${icon(ic)}</span>${k}<span class="n">${arr.length}</span></div>` +
+          arr.map((r) => `<div class="drow"><div class="val" data-copy="${esc(r.v)}" title="Click to copy">${esc(r.v)}</div><div class="src">${esc(chatName(r.chat))} · ${fmtTime(r.ts)}${r.company ? ' · ' + COMPANIES[r.company].short : ''}</div></div>`).join('') + '</div>'; }).join('');
+    },
+    set() {
+      const segBtn = (grp, v, l, on) => `<button class="${on ? 'on' : ''}" data-act="${grp}" data-v="${v}">${l}</button>`;
+      return `<div class="sec">Connection</div><div class="list">
+        <div class="srow"><span class="tile" style="--c:var(--green)">${icon('wifi')}</span><div class="lbl">WhatsApp Web<small>Live · ${CHATS.length} chats synced</small></div><button class="btn" data-act="sync">↻ Sync now</button></div>
+        <div class="srow"><span class="tile" style="--c:var(--blue)">${icon('cal')}</span><div class="lbl">Read every chat from the last</div><span class="val">3 days</span></div></div>
+        <div class="sec">Appearance</div><div class="list">
+        <div class="srow"><span class="tile" style="--c:var(--indigo)">${icon('sun')}</span><div class="lbl">Theme</div><div class="seg">${segBtn('theme', 'light', 'Light', state.theme === 'light')}${segBtn('theme', 'dark', 'Dark', state.theme === 'dark')}</div></div>
+        <div class="srow"><span class="tile" style="--c:var(--orange)">A</span><div class="lbl">Text size</div><div class="seg">${[[12, 'S'], [13, 'M'], [14.5, 'L'], [16, 'XL']].map(([v, l]) => segBtn('size', v, l, state.size === v)).join('')}</div></div></div>
+        <div class="sec">Privacy</div><div class="list">
+        <div class="srow"><span class="tile" style="--c:var(--red)">${icon('shield')}</span><div class="lbl">Never send, open chats or mark as read<small>Always on, by design</small></div><input type="checkbox" class="switch" checked disabled></div>
+        <div class="srow"><span class="tile" style="--c:var(--gray)">${icon('shield')}</span><div class="lbl">Block tracking &amp; analytics</div><input type="checkbox" class="switch" checked></div></div>
+        <div class="sec">Data</div><div class="list"><div class="srow"><span class="tile" style="--c:var(--green)">${icon('download')}</span><div class="lbl">Export to Excel · Backup · Restore</div><button class="btn" data-act="export">Export</button></div></div>`;
+    }
+  };
+
+  function render() {
+    const counts = { todo: todos().filter((i) => i.status === 'open').length, fu: fups().length };
+    const over = todos().some((i) => i.status === 'open' && i.due && i.due <= today);
+    $('tabs').innerHTML = TABS.map(([id, ic, l]) => `<button class="tab${state.tab === id ? ' on' : ''}" data-tab="${id}">${icon(ic)}<span class="lbl">${l}</span>${counts[id] ? `<b class="${id === 'todo' && over ? 'red' : ''}">${counts[id]}</b>` : ''}</button>`).join('');
+    $('view').innerHTML = VIEWS[state.tab]();
+  }
+
+  function setTheme(t) { state.theme = t; $('desk').dataset.theme = t; render(); }
+
+  $('btn-add').innerHTML = icon('plus');
+  $('search-ico').innerHTML = icon('search');
+  $('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-tab]'); if (b) { state.tab = b.dataset.tab; state.openChat = null; render(); } });
+  $('search').addEventListener('input', (e) => { state.search = e.target.value.trim().toLowerCase(); render(); });
+  $('btn-add').addEventListener('click', () => notify('Work Tracker', 'Add a task by hand, with a due date and company'));
+  $('view').addEventListener('click', (e) => {
+    const cp = e.target.closest('[data-copy]');
+    if (cp) { try { navigator.clipboard.writeText(cp.dataset.copy); } catch (_) {} notify('Copied', cp.dataset.copy); return; }
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const item = state.items.find((i) => i.id === +b.dataset.id);
+    switch (b.dataset.act) {
+      case 'toggle': item.status = item.status === 'done' ? 'open' : 'done'; break;
+      case 'notwork': item.status = 'dismissed'; notify('Work Tracker', 'Removed. Marked as not work'); break;
+      case 'remind': notify('Reminder set', 'You will be reminded in 1 hour'); break;
+      case 'draft': notify('Reply draft copied', 'Ji, ho jayega. Main update karta hoon 🙏'); break;
+      case 'open': state.openChat = b.dataset.chat; break;
+      case 'back': state.openChat = null; break;
+      case 'theme': setTheme(b.dataset.v); return;
+      case 'size': state.size = +b.dataset.v; $('desk').style.setProperty('--fs', state.size + 'px'); break;
+      case 'sync': notify('Sync complete', CHATS.length + ' chats · last 3 days'); break;
+      case 'export': notify('Work Tracker', 'Export is available in the full version'); break;
+    }
+    render();
+  });
+
+  $('c-chat').innerHTML = CHATS.filter((c) => !c.ignored).map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  $('composer').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = $('c-text').value.trim(); if (!v) return;
+    $('c-text').value = '';
+    receive({ chat: $('c-chat').value, who: 'me', text: v, ts: Date.now() });
+  });
+  document.querySelector('.try').addEventListener('click', (e) => { if (e.target.tagName === 'CODE') { $('c-text').value = e.target.textContent; $('c-text').focus(); } });
+  $('theme').addEventListener('click', () => setTheme(state.theme === 'dark' ? 'light' : 'dark'));
+
+  let timers = [];
+  function play(instant) {
+    timers.forEach(clearTimeout); timers = [];
+    state.items = []; state.details = []; state.msgs = []; state.openChat = null; state.tab = 'todo';
+    Object.values(chatState).forEach((s) => Object.assign(s, { last: '', ts: 0, unread: 0 }));
+    renderWA(); render();
+    SCRIPT.forEach((m, k) => {
+      const msg = { ...m, ts: today + m.at * 36e5 };
+      if (instant) receive(msg, true); else timers.push(setTimeout(() => receive(msg), 600 + k * 1250));
+    });
+  }
+  $('replay').addEventListener('click', () => play(false));
+  $('fast').addEventListener('click', () => play(true));
+  const q = location.search;
+  if (/theme=dark/.test(q)) setTheme('dark');
+  play(/instant/.test(q));
+})();
+</script>
+</body>
+</html>

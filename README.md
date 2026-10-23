@@ -10,22 +10,60 @@ A Chrome extension that reads your work messages on WhatsApp Web and turns them 
 **tasks, follow-ups, payments and reminders**, with due dates and company tags.
 No server, no subscription, no AI bills. **100% offline.**
 
-[**▶ Try the live demo**](https://marufayesha.github.io/whatsapp-work-tracker/) · [⭐ Star to get notified](#-full-release-coming-soon)
+[**▶ v2 live demo**](https://marufayesha.github.io/whatsapp-work-tracker/v2/) · [▶ v1 live demo](https://marufayesha.github.io/whatsapp-work-tracker/) · [⭐ Star to get notified](#-full-release-coming-soon)
 
-![Status](https://img.shields.io/badge/status-v0.1.0%20private%20beta-orange)
+![Status](https://img.shields.io/badge/status-v2.0%20private%20beta-orange)
 ![Chrome](https://img.shields.io/badge/Chrome-Extension%20MV3-4285F4?logo=googlechrome&logoColor=white)
 ![Offline](https://img.shields.io/badge/works-offline-16a34a)
-![Tests](https://img.shields.io/badge/tests-161%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-279%20passing-brightgreen)
+![Platforms](https://img.shields.io/badge/Windows%20%7C%20macOS%20%7C%20Linux-supported-555)
 
 </div>
 
 ---
 
+## 🆕 v2: reads every chat, no need to open them
+
+<p align="center"><img src="assets/v2/logo.png" width="72" alt="Work Tracker v2 logo"></p>
+
+**[▶ Try the v2 live demo](https://marufayesha.github.io/whatsapp-work-tracker/v2/)**
+
+![v2 demo: messages in unopened chats become to-dos](assets/v2/screenshots/demo-light.png)
+
+- 📡 **Every chat, unopened.** New messages are caught in the background, even in chats you never opened.
+- ⚡ **Instant catch-up.** On first start it reads the last few days of every chat, then each new message live.
+- 🍎 **macOS-style design.** Traffic lights, translucent glass and a segmented toolbar. To-do looks like Reminders, Messages like the Messages app.
+- 🌓 **Light / Dark mode** and 4 text sizes.
+- 🔔 **Smarter follow-ups:** They replied · Waiting on them · They will send · I promised.
+- 🔒 **Strictly read-only.** It never sends, never opens a chat and never marks messages as read (no blue ticks). Tracking is blocked.
+- 💻 **Works on Windows, macOS and Linux.** The macOS look is just the design. It runs anywhere Google Chrome runs.
+
+| To-do (dark) | Follow-ups | Messages | Settings |
+|---|---|---|---|
+| ![To-do dark](assets/v2/screenshots/todo-dark.png) | ![Follow-ups](assets/v2/screenshots/fu.png) | ![Messages](assets/v2/screenshots/chat.png) | ![Settings](assets/v2/screenshots/set.png) |
+
+### v1 vs v2
+
+| | v1 | v2 |
+|---|---|---|
+| Reads | Only the chat open on screen | **All recent chats, without opening them** |
+| New messages in other chats | Caught when you open that chat | **Caught instantly** |
+| Design | Clean, simple panel | **macOS-style, Light/Dark, text sizes** |
+| Follow-up groups | 2 | **4** (incl. “They replied” and “I promised”) |
+| Platforms | Windows · macOS · Linux (Chrome) | Windows · macOS · Linux (Chrome) |
+| Automated tests | 161 | 118 |
+
+---
+
+## v1: the original
+
+[▶ Try the v1 live demo](https://marufayesha.github.io/whatsapp-work-tracker/)
+
 ![Demo: WhatsApp messages on the left turn into tasks on the right](assets/screenshots/demo-inbox.png)
 
 <sub>Screenshots are from the live demo. All chats, names, companies and numbers are made-up sample data.</sub>
 
-## 😩 The problem
+### 😩 The problem
 
 If you run a business, manage accounts or handle clients in India, a lot of real work happens on WhatsApp:
 
@@ -33,7 +71,7 @@ If you run a business, manage accounts or handle clients in India, a lot of real
 
 These messages get buried under “Good morning 🌞” forwards. Deadlines slip, payments go unconfirmed and follow-ups are forgotten.
 
-## ✨ The solution
+### ✨ The solution
 
 Keep WhatsApp Web open and read your chats as usual. **Work Tracker** works quietly in the side panel:
 
@@ -49,7 +87,7 @@ Keep WhatsApp Web open and read your chats as usual. **Work Tracker** works quie
 | 📤 | **Export** | Excel (multi-sheet), CSV and JSON backup/restore |
 | 🔒 | **Private by design** | Read-only: it never sends or clicks on its own. OTPs are never stored, passwords are redacted and Aadhaar is masked. No cloud. |
 
-## 📸 Screenshots
+### 📸 Screenshots
 
 | Tasks | Follow-ups | Schedule |
 |---|---|---|
@@ -59,7 +97,7 @@ Keep WhatsApp Web open and read your chats as usual. **Work Tracker** works quie
 |---|---|---|
 | ![Why detected](assets/screenshots/inbox-why.png) | ![Details](assets/screenshots/details.png) | ![Report](assets/screenshots/report.png) |
 
-## 🎮 Try it yourself
+### 🎮 Try it yourself
 
 Open the **[live demo](https://marufayesha.github.io/whatsapp-work-tracker/)** and type a message in the simulated WhatsApp chat. Some to try:
 
@@ -75,7 +113,7 @@ Open the **[live demo](https://marufayesha.github.io/whatsapp-work-tracker/)** a
 - Chrome Extension **Manifest V3** (service worker + side panel)
 - Plain **JavaScript**, with no framework and no build step
 - **IndexedDB** (Dexie) for local storage and **SheetJS** for Excel export
-- Rules-based detection engine for **Hinglish + English + Hindi**, covered by **161 automated tests**
+- Rules-based detection engine for **Hinglish + English + Hindi**, covered by **279 automated tests** (v1 + v2)
 
 ## 🗺️ Roadmap
 
@@ -84,6 +122,7 @@ Open the **[live demo](https://marufayesha.github.io/whatsapp-work-tracker/)** a
 - [x] Schedule + compliance calendar
 - [x] Details vault, company tags and Excel/CSV export
 - [x] Daily Sweep + Daily Report
+- [x] v2: reads all chats in the background, macOS-style design, dark mode
 - [ ] Public release of the source code
 - [ ] Optional AI mode (bring your own API key)
 - [ ] Invoice photo OCR
