@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://marufayesha.github.io/whatsapp-work-tracker/sitemap.xml
