@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://marufhq.github.io/whatsapp-work-tracker/sitemap.xml
+Sitemap: https://marufxdd.github.io/whatsapp-work-tracker/sitemap.xml

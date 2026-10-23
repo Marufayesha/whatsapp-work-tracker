@@ -10,7 +10,7 @@ A Chrome extension that reads your work messages on WhatsApp Web and turns them 
 **tasks, follow-ups, payments and reminders**, with due dates and company tags.
 No server, no subscription, no AI bills. **100% offline.**
 
-[**▶ v2 live demo**](https://marufhq.github.io/whatsapp-work-tracker/v2/) · [▶ v1 live demo](https://marufhq.github.io/whatsapp-work-tracker/) · [⭐ Star to get notified](#-full-release-coming-soon)
+[**▶ v2 live demo**](https://marufxdd.github.io/whatsapp-work-tracker/v2/) · [▶ v1 live demo](https://marufxdd.github.io/whatsapp-work-tracker/) · [⭐ Star to get notified](#-full-release-coming-soon)
 
 ![Status](https://img.shields.io/badge/status-v2.0%20private%20beta-orange)
 ![Chrome](https://img.shields.io/badge/Chrome-Extension%20MV3-4285F4?logo=googlechrome&logoColor=white)
@@ -26,7 +26,7 @@ No server, no subscription, no AI bills. **100% offline.**
 
 <p align="center"><img src="assets/v2/logo.png" width="72" alt="Work Tracker v2 logo"></p>
 
-**[▶ Try the v2 live demo](https://marufhq.github.io/whatsapp-work-tracker/v2/)**
+**[▶ Try the v2 live demo](https://marufxdd.github.io/whatsapp-work-tracker/v2/)**
 
 ![v2 demo: messages in unopened chats become to-dos](assets/v2/screenshots/demo-light.png)
 
@@ -57,7 +57,7 @@ No server, no subscription, no AI bills. **100% offline.**
 
 ## v1: the original
 
-[▶ Try the v1 live demo](https://marufhq.github.io/whatsapp-work-tracker/)
+[▶ Try the v1 live demo](https://marufxdd.github.io/whatsapp-work-tracker/)
 
 ![Demo: WhatsApp messages on the left turn into tasks on the right](assets/screenshots/demo-inbox.png)
 
@@ -99,7 +99,7 @@ Keep WhatsApp Web open and read your chats as usual. **Work Tracker** works quie
 
 ### 🎮 Try it yourself
 
-Open the **[live demo](https://marufhq.github.io/whatsapp-work-tracker/)** and type a message in the simulated WhatsApp chat. Some to try:
+Open the **[live demo](https://marufxdd.github.io/whatsapp-work-tracker/)** and type a message in the simulated WhatsApp chat. Some to try:
 
 - `Sir TDS return 15 tak file karna hai`
 - `Payment ₹12,500 received`
@@ -134,9 +134,9 @@ The extension works and is in private use. **The full source code will be publis
 
 - ⭐ **Star this repo** to get notified when it drops
 - 👀 **Watch → Custom → Releases** to get an alert
-- 💬 Open an [issue](https://github.com/marufHQ/whatsapp-work-tracker/issues) to tell me what you'd use it for, or to ask for early access
+- 💬 Open an [issue](https://github.com/Marufxdd/whatsapp-work-tracker/issues) to tell me what you'd use it for, or to ask for early access
 
 ---
 
 <sub>Not affiliated with, endorsed by or connected to WhatsApp or Meta. “WhatsApp” is a trademark of its owner.
-© 2026 marufHQ. All rights reserved.</sub>
+© 2026 Marufxdd. All rights reserved.</sub>
