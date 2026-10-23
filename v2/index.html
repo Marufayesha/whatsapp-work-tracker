@@ -212,6 +212,20 @@ svg.i { width: 15px; height: 15px; flex: none; stroke: currentColor; fill: none;
 
 @keyframes rise { from { transform: translateY(-5px); opacity: 0; } }
 @keyframes slidein { from { transform: translateY(-14px); opacity: 0; } }
+/* ---------- early-access waitlist ---------- */
+.wl { max-width: 560px; margin: 24px auto 0; padding: 22px 18px; border-radius: 16px; text-align: center; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.14); }
+.wl h2 { margin: 0 0 4px; font-size: 22px; color: #fff; letter-spacing: -.01em; }
+.wl p { margin: 0 0 14px; color: #a3a9bf; font-size: 14px; }
+.wl form { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.wl input[type=email] { flex: 1 1 220px; min-width: 0; height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.08); color: #fff; font-size: 15px; }
+.wl input[type=email]::placeholder { color: #a3a9bf; }
+.wl input[type=email]:focus { outline: 2px solid #007aff; outline-offset: 1px; }
+.wl button { height: 44px; padding: 0 22px; border: 0; border-radius: 999px; background: #007aff; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; }
+.wl button:disabled { opacity: .6; cursor: default; }
+.wl .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.wl-msg { min-height: 20px; margin-top: 10px; font-size: 14px; }
+.wl-msg.ok { color: #4ade80; } .wl-msg.err { color: #fca5a5; }
+.wl small { display: block; margin-top: 6px; color: #a3a9bf; font-size: 12px; }
 </style>
 </head>
 <body>
@@ -225,7 +239,7 @@ svg.i { width: 15px; height: 15px; flex: none; stroke: currentColor; fill: none;
   </div>
   <div class="vnav">You're viewing <b>v2</b> · <a href="../">see the original v1 demo →</a></div>
   <p class="demo-note"><b>Live demo:</b> new messages land in different chats on the left. None of them are opened, and the Work Tracker still catches them. Try Settings → Appearance → Dark. All chats, names and numbers are made-up sample data.</p>
-  <div class="controls"><button id="replay">▶ Replay</button><button id="fast">⏩ Show all now</button><button id="theme">🌓 Light / Dark</button></div>
+  <div class="controls"><button id="replay">▶ Replay</button><button id="fast">⏩ Show all now</button><button id="theme">🌓 Light / Dark</button><button onclick="location.hash='early-access'">🚀 Get early access</button></div>
 </header>
 
 <section class="desk" id="desk">
@@ -263,6 +277,18 @@ svg.i { width: 15px; height: 15px; flex: none; stroke: currentColor; fill: none;
   <div class="feat"><h3>🌓 Light, Dark &amp; text size</h3><p>Auto, Light or Dark appearance and four text sizes. It looks native on Windows, macOS and Linux.</p></div>
   <div class="feat"><h3>🔔 Smarter follow-ups</h3><p>Four groups: They replied, Waiting on them, They will send, and I promised. Promises like “kal bhej dunga” are tracked too.</p></div>
   <div class="feat"><h3>🔒 Read-only by design</h3><p>It never sends a message, never marks chats as read (no blue ticks) and never opens a chat. Tracking is blocked and everything stays on your computer.</p></div>
+</section>
+
+<section class="wl" id="early-access">
+  <h2>🚀 Get early access</h2>
+  <p>Be the first to try the full version. Drop your email and we'll let you know when it launches.</p>
+  <form id="wl-form" data-source="v2" novalidate>
+    <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required aria-label="Email address">
+    <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <button type="submit">Join the waitlist</button>
+  </form>
+  <div id="wl-msg" class="wl-msg" role="status" aria-live="polite"></div>
+  <small>We'll only email you about the launch. No spam.</small>
 </section>
 
 <div class="cta">
@@ -551,5 +577,6 @@ svg.i { width: 15px; height: 15px; flex: none; stroke: currentColor; fill: none;
   play(/instant/.test(q));
 })();
 </script>
+<script src="../assets/waitlist.js"></script>
 </body>
 </html>

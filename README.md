@@ -132,6 +132,7 @@ Open the **[live demo](https://marufxdd.github.io/whatsapp-work-tracker/)** and 
 
 The extension works and is in private use. **The full source code will be published here soon.**
 
+- 🚀 **[Join the early-access waitlist](https://marufxdd.github.io/whatsapp-work-tracker/v2/#early-access)** and get an email at launch
 - ⭐ **Star this repo** to get notified when it drops
 - 👀 **Watch → Custom → Releases** to get an alert
 - 💬 Open an [issue](https://github.com/Marufxdd/whatsapp-work-tracker/issues) to tell me what you'd use it for, or to ask for early access
